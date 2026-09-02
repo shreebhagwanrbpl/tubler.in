@@ -10,13 +10,17 @@ import {
   Phone,
   MapPin,
 } from "lucide-react";
+import {
+  FaFacebookF,
+  FaInstagram,
+} from "react-icons/fa";
+import { fetchFullCatalog } from "@/lib/data-fetcher";
 
 export default function Footer() {
-  const [contactInfo, setContactInfo] =
-    useState([]);
+  const [contactInfo, setContactInfo] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [districtData, setDistrictData] =
-    useState(null);
+  const [districtData, setDistrictData] = useState(null);
+  const [categories, setCategories] = useState([]);
 
   const pathname = usePathname();
 
@@ -38,6 +42,10 @@ export default function Footer() {
       ? pathParts[0]
       : "";
 
+  /* =========================================================
+     LOAD CONTACT
+  ========================================================= */
+
   useEffect(() => {
     const loadContact = async () => {
       try {
@@ -45,7 +53,7 @@ export default function Footer() {
           doc(
             db,
             "websites",
-            "centralbiomedicals",
+            "tublerin",
             "pages",
             "contact"
           )
@@ -67,6 +75,10 @@ export default function Footer() {
     loadContact();
   }, []);
 
+  /* =========================================================
+     LOAD DISTRICT
+  ========================================================= */
+
   useEffect(() => {
     const loadDistrict = async () => {
       if (!district) return;
@@ -76,7 +88,7 @@ export default function Footer() {
           doc(
             db,
             "websites",
-            "centralbiomedicals",
+            "tublerin",
             "districts",
             district
           )
@@ -93,25 +105,85 @@ export default function Footer() {
     loadDistrict();
   }, [district]);
 
+  /* =========================================================
+     LOAD CATEGORIES
+  ========================================================= */
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const catalog = await fetchFullCatalog();
+
+        const uniqueCategories =
+          Array.from(
+            new Set(
+              catalog
+                .map((item) => item.category)
+                .filter(Boolean)
+            )
+          );
+
+        setCategories(
+          uniqueCategories.slice(0, 7)
+        );
+      } catch (err) {
+        console.error(
+          "Error loading categories in footer:",
+          err
+        );
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  /* =========================================================
+     CONTACT DATA
+  ========================================================= */
+
+  const getContactField = (info, type) => {
+    if (!Array.isArray(info)) return null;
+    return info.find((x) => {
+      const label = (x.label || "").toLowerCase().trim();
+      if (type === "phone") {
+        return label === "phone" || label === "phone number" || label.includes("phone") || label.includes("mobile") || label.includes("contact");
+      }
+      if (type === "email") {
+        return label === "email" || label === "email address" || label.includes("email") || label.includes("mail");
+      }
+      if (type === "address") {
+        return label === "address" || label === "office address" || label.includes("address");
+      }
+      return false;
+    })?.value;
+  };
+
   const phone =
-    contactInfo.find(
-      (x) => x.label === "Phone Number"
-    )?.value || "";
+    getContactField(contactInfo, "phone") ||
+    "+91 9983123469\n+91 9983333489";
 
   const email =
-    contactInfo.find(
-      (x) => x.label === "Email Address"
-    )?.value || "";
+    getContactField(contactInfo, "email") ||
+    "rajbiosis@yahoo.in";
 
   const address =
-    contactInfo.find(
-      (x) => x.label === "Office Address"
-    )?.value || "";
+    getContactField(contactInfo, "address") ||
+    "F-4, 1st Floor, Plot No. 16, D-Block Tagor Nagar, on Ajmer-Delhi, 200 Feet Bypass Rd, Jaipur, Rajasthan 302021";
 
-  const dynamicAddress =
-    districtData
-      ? `${districtData.district}, ${districtData.state}, India`
-      : address;
+  const dynamicAddress = districtData
+    ? `${districtData.district}, ${districtData.state}, India`
+    : address;
+
+  const phoneNumbers = phone
+    ? String(phone)
+      .split(/[\n,;/|]+/)
+      .map((num) => num.trim())
+      .filter(Boolean)
+    : [];
+
+  /* =========================================================
+     LINK
+  ========================================================= */
 
   const makeLink = (path) => {
     if (!district) return path;
@@ -122,210 +194,319 @@ export default function Footer() {
 
     return `/${district}${path}`;
   };
+
+  /* =========================================================
+     LOADING
+  ========================================================= */
+
   if (loading) {
     return (
-   <footer className="border-t border-[#E8D3BC] bg-[#FDFBD4]">
+      <footer className="border-t border-[#E8D3BC] bg-white">
 
-  <div className="container-custom py-16">
+        <div className="container-custom py-14">
 
-    <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
 
-      {[...Array(4)].map((_, i) => (
-        <div key={i}>
+            {[...Array(4)].map((_, i) => (
+              <div key={i}>
 
-          <div className="mb-6 h-8 w-40 animate-pulse rounded bg-[#EAD9C4]" />
+                <div className="mb-6 h-8 w-40 animate-pulse rounded bg-[#FDFBD4]" />
 
-          {[...Array(5)].map((_, j) => (
-            <div
-              key={j}
-              className="mb-4 h-5 animate-pulse rounded bg-[#F3E4D2]"
-            />
-          ))}
+                {[...Array(5)].map((_, j) => (
+                  <div
+                    key={j}
+                    className="mb-4 h-5 animate-pulse rounded bg-[#FDFBD4]"
+                  />
+                ))}
+
+              </div>
+            ))}
+
+          </div>
+
+          <div className="mt-12 border-t border-[#E8D3BC] pt-6">
+
+            <div className="h-5 w-72 animate-pulse rounded bg-[#FDFBD4]" />
+
+          </div>
 
         </div>
-      ))}
 
-    </div>
-
-    <div className="mt-12 border-t border-[#E8D3BC] pt-6">
-
-      <div className="h-5 w-72 animate-pulse rounded bg-[#EAD9C4]" />
-
-    </div>
-
-  </div>
-
-</footer>
+      </footer>
     );
   }
+
   return (
-   <footer className="border-t border-[#E8D3BC] bg-gradient-to-b from-white via-[#FFF9EF] to-[#FDFBD4]">
+    <footer className="border-t border-[#E8D3BC] bg-white">
 
-  <div className="container-custom py-16">
+      <div className="container-custom py-14">
 
-    <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
 
-      {/* Company */}
+          {/* =================================================
+              BRAND
+          ================================================= */}
 
-      <div>
+          <div>
 
-        <h2 className="text-2xl font-bold text-[#C05800]">
-          Central
-          <span className="text-[#38240D]">
-            {" "}Biomedicals
-          </span>
-        </h2>
+            <h2 className="text-2xl font-bold text-[#C05800]">
 
-        <p className="mt-5 leading-7 text-[#5B4634]">
-          Delivering trusted diagnostic
-          and biomedical solutions with
-          innovation, quality, and
-          precision healthcare support.
-        </p>
+              Raj
 
-      </div>
+              <span className="text-[#5B4634]">
+                {" "}Biosis
+              </span>
 
-      {/* Quick Links */}
+            </h2>
 
-      <div>
+            <p className="mt-5 leading-7 text-slate-500">
 
-        <h3 className="mb-5 text-lg font-semibold text-[#38240D]">
-          Quick Links
-        </h3>
+              Delivering trusted diagnostic
+              and biomedical solutions with
+              innovation, quality, and
+              precision healthcare support.
 
-        <div className="flex flex-col gap-3">
-
-          {[
-            { name: "Home", link: "/" },
-            { name: "About", link: "/about" },
-            { name: "Services", link: "/services" },
-            { name: "Products", link: "/items" },
-            { name: "Contact", link: "/contact" },
-          ].map((item) => (
-
-            <Link
-              key={item.name}
-              href={makeLink(item.link)}
-              className="text-[#5B4634] transition-all duration-300 hover:translate-x-1 hover:text-[#C05800]"
-            >
-              {item.name}
-            </Link>
-
-          ))}
-
-        </div>
-
-      </div>
-
-      {/* Services */}
-
-      <div>
-
-        <h3 className="mb-5 text-lg font-semibold text-[#38240D]">
-          Services
-        </h3>
-
-        <div className="space-y-3 text-[#5B4634]">
-
-          <p className="transition hover:text-[#C05800]">
-            Diagnostic Equipment
-          </p>
-
-          <p className="transition hover:text-[#C05800]">
-            Laboratory Solutions
-          </p>
-
-          <p className="transition hover:text-[#C05800]">
-            Biomedical Instruments
-          </p>
-
-          <p className="transition hover:text-[#C05800]">
-            Maintenance Support
-          </p>
-
-        </div>
-
-      </div>
-
-      {/* Contact */}
-
-      <div>
-
-        <h3 className="mb-5 text-lg font-semibold text-[#38240D]">
-          Contact Info
-        </h3>
-
-        <div className="space-y-5 text-[#5B4634]">
-
-          <div className="flex items-start gap-3">
-
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3E4D2]">
-
-              <MapPin
-                size={18}
-                className="text-[#C05800]"
-              />
-
-            </div>
-
-            <p className="leading-6">
-              {dynamicAddress}
             </p>
 
-          </div>
+            {/* SOCIAL */}
 
-          <div className="flex items-center gap-3">
+            <div className="mt-6 flex gap-3">
 
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3E4D2]">
+              <a
+                href="https://www.facebook.com/rajbiosispvtltd/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#E8D3BC] bg-[#FDFBD4] text-[#C05800] transition-all duration-300 hover:border-[#C05800] hover:bg-[#C05800] hover:text-white"
+              >
 
-              <Phone
-                size={18}
-                className="text-[#C05800]"
-              />
+                <FaFacebookF size={17} />
+
+              </a>
+
+
+              <a
+                href="https://www.instagram.com/rajbiosisindia/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#E8D3BC] bg-[#FDFBD4] text-[#C05800] transition-all duration-300 hover:border-[#C05800] hover:bg-[#C05800] hover:text-white"
+              >
+
+                <FaInstagram size={18} />
+
+              </a>
 
             </div>
 
-            <p>{phone}</p>
-
           </div>
 
-          <div className="flex items-center gap-3">
 
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3E4D2]">
+          {/* =================================================
+              QUICK LINKS
+          ================================================= */}
 
-              <Mail
-                size={18}
-                className="text-[#C05800]"
-              />
+          <div className="w-fit">
+
+            <h3 className="mb-5 text-lg font-semibold text-[#5B4634]">
+              Quick Links
+            </h3>
+
+            <div className="flex w-fit flex-col gap-3 text-slate-500">
+
+              <Link
+                href={makeLink("/")}
+                className="transition hover:text-[#C05800]"
+              >
+                Home
+              </Link>
+
+              <Link
+                href={makeLink("/about")}
+                className="transition hover:text-[#C05800]"
+              >
+                About
+              </Link>
+
+              <Link
+                href={makeLink("/services")}
+                className="transition hover:text-[#C05800]"
+              >
+                Services
+              </Link>
+
+              <Link
+                href={makeLink("/items")}
+                className="transition hover:text-[#C05800]"
+              >
+                Products
+              </Link>
+
+              <Link
+                href={makeLink("/contact")}
+                className="transition hover:text-[#C05800]"
+              >
+                Contact
+              </Link>
 
             </div>
 
-            <p>{email}</p>
+          </div>
+
+
+          {/* =================================================
+              CATEGORIES
+          ================================================= */}
+
+          <div className="w-fit">
+
+            <h3 className="mb-5 text-lg font-semibold text-[#5B4634]">
+              Our Categories
+            </h3>
+
+            <div className="flex w-fit flex-col gap-3 text-slate-500">
+
+              {categories.map((cat) => (
+
+                <Link
+                  key={cat}
+                  href={makeLink(
+                    `/items#${cat
+                      .replace(/\s+/g, "-")
+                      .toLowerCase()}`
+                  )}
+                  className="w-fit text-left transition hover:text-[#C05800]"
+                >
+                  {cat}
+                </Link>
+
+              ))}
+
+              {categories.length === 0 && (
+                <>
+                  <p>Diagnostic Equipment</p>
+                  <p>Laboratory Solutions</p>
+                  <p>Biomedical Instruments</p>
+                  <p>Maintenance Support</p>
+                </>
+              )}
+
+            </div>
+
+          </div>
+
+
+          {/* =================================================
+              CONTACT
+          ================================================= */}
+
+          <div>
+
+            <h3 className="mb-5 text-lg font-semibold text-[#5B4634]">
+              Contact Info
+            </h3>
+
+            <div className="space-y-4 text-slate-500">
+
+              {/* ADDRESS */}
+
+              <div className="flex items-start gap-3">
+
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-[#E8D3BC] bg-[#FDFBD4]">
+
+                  <MapPin
+                    size={21}
+                    className="text-[#C05800]"
+                  />
+
+                </div>
+
+                <p className="pt-1 leading-6">
+                  {dynamicAddress}
+                </p>
+
+              </div>
+
+
+              {/* PHONE */}
+
+              <div className="flex flex-col gap-2">
+
+                {phoneNumbers.map(
+                  (num, i) => (
+
+                    <div
+                      key={i}
+                      className="flex items-center gap-3"
+                    >
+
+                      <Phone
+                        size={17}
+                        className="flex-shrink-0 text-[#C05800]"
+                      />
+
+                      <a
+                        href={`tel:${num}`}
+                        className="transition hover:text-[#C05800]"
+                      >
+                        {num}
+                      </a>
+
+                    </div>
+
+                  )
+                )}
+
+              </div>
+
+
+              {/* EMAIL */}
+
+              <div className="flex items-center gap-3">
+
+                <Mail
+                  size={17}
+                  className="text-[#C05800]"
+                />
+
+                <p>
+
+                  <a
+                    href={`mailto:${email}`}
+                    className="transition hover:text-[#C05800]"
+                  >
+                    {email}
+                  </a>
+
+                </p>
+
+              </div>
+
+            </div>
 
           </div>
 
         </div>
 
+
+        {/* =================================================
+            BOTTOM
+        ================================================= */}
+
+        <div className="mt-10 flex flex-col items-center justify-between border-t border-[#E8D3BC] pt-5 text-sm text-slate-500 md:flex-row">
+
+          <p>
+            © 2026 Raj Biosis.
+            All rights reserved.
+          </p>
+
+          <p className="mt-3 md:mt-0">
+            Designed with precision for
+            modern diagnostics.
+          </p>
+
+        </div>
+
       </div>
 
-    </div>
-
-    {/* Bottom */}
-
-    <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-[#E8D3BC] pt-8 text-sm text-[#6B5A4A] md:flex-row">
-
-      <p>
-        © 2026 Central Biomedicals. All rights reserved.
-      </p>
-
-      <p>
-        Designed with <span className="text-[#C05800]">❤</span> for modern diagnostics.
-      </p>
-
-    </div>
-
-  </div>
-
-</footer>
+    </footer>
   );
 }

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-
+import Image from "next/image";
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -46,131 +46,125 @@ export default function Navbar() {
   ];
 
   return (
- <header className="sticky top-0 z-50 border-b border-[#E8D3BC] bg-white/90 backdrop-blur-xl shadow-sm">
+    <header className="sticky top-0 z-50 border-b border-[#E8D3BC] bg-white/90 backdrop-blur-xl shadow-sm">
 
-  <div className="container-custom flex h-20 items-center justify-between">
+      <div className="container-custom flex h-20 items-center justify-between">
 
-    {/* Logo */}
+        {/* Logo */}
 
-    <Link href={makeLink("/")}>
-
-      <h1 className="text-2xl font-black tracking-tight">
-
-        <span className="text-[#C05800]">
-          Central
-        </span>
-
-        <span className="text-[#38240D]">
-          {" "}Biomedicals
-        </span>
-
-      </h1>
-
-    </Link>
-
-    {/* Desktop Menu */}
-
-    <nav className="hidden items-center gap-8 lg:flex">
-
-      {navLinks.map((link) => (
-
-        <Link
-          key={link.name}
-          href={makeLink(link.path)}
-          className="relative font-medium text-[#5B4634] transition-all duration-300 hover:text-[#C05800] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-[#C05800] after:transition-all after:duration-300 hover:after:w-full"
-        >
-          {link.name}
+        <Link href={makeLink("/")}>
+          <Image
+            src="/logo.png"
+            alt="Raj Biosis"
+            width={90}
+            height={35}
+            priority
+            className="h-auto w-[70px] md:w-[90px] object-contain"
+          />
         </Link>
 
-      ))}
+        {/* Desktop Menu */}
 
-    </nav>
+        <nav className="hidden items-center gap-8 lg:flex">
 
-    {/* Desktop Button */}
+          {navLinks.map((link) => (
 
-    <div className="hidden lg:block">
+            <Link
+              key={link.name}
+              href={makeLink(link.path)}
+              className="relative font-medium text-[#5B4634] transition-all duration-300 hover:text-[#C05800] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-[#C05800] after:transition-all after:duration-300 hover:after:w-full"
+            >
+              {link.name}
+            </Link>
 
-      <Link href={makeLink("/contact")}>
+          ))}
 
-        <button className="rounded-xl bg-[#C05800] px-6 py-3 font-semibold text-white shadow-md transition-all duration-300 hover:bg-[#713600] hover:shadow-xl hover:shadow-[#C05800]/20">
+        </nav>
 
-          Get Quote
+        {/* Desktop Button */}
 
-        </button>
+        <div className="hidden lg:block">
 
-      </Link>
+          <Link href={makeLink("/contact")}>
 
-    </div>
+            <button className="rounded-xl bg-[#C05800] px-6 py-3 font-semibold text-white shadow-md transition-all duration-300 hover:bg-[#713600] hover:shadow-xl hover:shadow-[#C05800]/20">
 
-    {/* Mobile Button */}
+              Get Quote
 
-    <button
-      onClick={() => setMenuOpen(!menuOpen)}
-      className="rounded-xl border border-[#E8D3BC] bg-[#FDFBD4] p-2 transition-all duration-300 hover:bg-[#F3E4D2] lg:hidden"
-    >
-
-      {menuOpen ? (
-        <X
-          size={26}
-          className="text-[#C05800]"
-        />
-      ) : (
-        <Menu
-          size={26}
-          className="text-[#C05800]"
-        />
-      )}
-
-    </button>
-
-  </div>
-
-  {/* Mobile Menu */}
-
-  <div
-    className={`overflow-hidden transition-all duration-300 lg:hidden ${
-      menuOpen ? "max-h-[500px]" : "max-h-0"
-    }`}
-  >
-
-    <div className="border-t border-[#E8D3BC] bg-white px-6 py-6">
-
-      <nav className="flex flex-col gap-5">
-
-        {navLinks.map((link) => (
-
-          <Link
-            key={link.name}
-            href={makeLink(link.path)}
-            onClick={() => setMenuOpen(false)}
-            className="font-medium text-[#5B4634] transition-all duration-300 hover:translate-x-1 hover:text-[#C05800]"
-          >
-
-            {link.name}
+            </button>
 
           </Link>
 
-        ))}
+        </div>
 
-        <Link
-          href={makeLink("/contact")}
-          onClick={() => setMenuOpen(false)}
+        {/* Mobile Button */}
+
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="rounded-xl border border-[#E8D3BC] bg-[#FDFBD4] p-2 transition-all duration-300 hover:bg-[#F3E4D2] lg:hidden"
         >
 
-          <button className="mt-2 w-full rounded-xl bg-[#C05800] py-3 font-semibold text-white transition-all duration-300 hover:bg-[#713600]">
+          {menuOpen ? (
+            <X
+              size={26}
+              className="text-[#C05800]"
+            />
+          ) : (
+            <Menu
+              size={26}
+              className="text-[#C05800]"
+            />
+          )}
 
-            Get Quote
+        </button>
 
-          </button>
+      </div>
 
-        </Link>
+      {/* Mobile Menu */}
 
-      </nav>
+      <div
+        className={`overflow-hidden transition-all duration-300 lg:hidden ${menuOpen ? "max-h-[500px]" : "max-h-0"
+          }`}
+      >
 
-    </div>
+        <div className="border-t border-[#E8D3BC] bg-white px-6 py-6">
 
-  </div>
+          <nav className="flex flex-col gap-5">
 
-</header>
+            {navLinks.map((link) => (
+
+              <Link
+                key={link.name}
+                href={makeLink(link.path)}
+                onClick={() => setMenuOpen(false)}
+                className="font-medium text-[#5B4634] transition-all duration-300 hover:translate-x-1 hover:text-[#C05800]"
+              >
+
+                {link.name}
+
+              </Link>
+
+            ))}
+
+            <Link
+              href={makeLink("/contact")}
+              onClick={() => setMenuOpen(false)}
+            >
+
+              <button className="mt-2 w-full rounded-xl bg-[#C05800] py-3 font-semibold text-white transition-all duration-300 hover:bg-[#713600]">
+
+                Get Quote
+
+              </button>
+
+            </Link>
+
+          </nav>
+
+        </div>
+
+      </div>
+
+    </header>
   );
 }

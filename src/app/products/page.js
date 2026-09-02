@@ -15,7 +15,7 @@ import {
 
 import PageBanner from "@/components/PageBanner";
 import SectionTitle from "@/components/SectionTitle";
-import CTASection from "@/components/CTASection";
+// import CTASection from "@/components/CTASection";
 
 export default function ProductsPage() {
 

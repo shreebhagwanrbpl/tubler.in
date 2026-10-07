@@ -166,7 +166,7 @@ export default function ProductsClient({ initialProducts = [], district = null, 
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  // Subscribe to real-time updates from Firestore
+  // Subscribe to real-time updates from MongoDB
   useEffect(() => {
     const unsubscribe = subscribeToCatalog((updatedProducts) => {
       setProducts(updatedProducts);

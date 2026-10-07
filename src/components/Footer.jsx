@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { doc, getDoc } from "@/lib/client-api";
+import { db } from "@/lib/client-api";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -15,12 +15,19 @@ import {
   FaInstagram,
 } from "react-icons/fa";
 import { fetchFullCatalog } from "@/lib/data-fetcher";
+import fallbackData from "@/data/fallbackData.json";
+
+const defaultCategories = Array.from(
+  new Set((fallbackData?.catalog || []).map((item) => item.category).filter(Boolean))
+).slice(0, 7);
 
 export default function Footer() {
-  const [contactInfo, setContactInfo] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [contactInfo, setContactInfo] = useState(
+    fallbackData?.contact?.contactInfo || []
+  );
+  const [loading, setLoading] = useState(false);
   const [districtData, setDistrictData] = useState(null);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState(defaultCategories);
 
   const pathname = usePathname();
 
@@ -123,9 +130,11 @@ export default function Footer() {
             )
           );
 
-        setCategories(
-          uniqueCategories.slice(0, 7)
-        );
+        if (uniqueCategories.length > 0) {
+          setCategories(
+            uniqueCategories.slice(0, 7)
+          );
+        }
       } catch (err) {
         console.error(
           "Error loading categories in footer:",

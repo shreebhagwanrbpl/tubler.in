@@ -19,9 +19,9 @@ import {
     getDoc,
     addDoc,
     collection,
-} from "firebase/firestore";
+} from "@/lib/client-api";
 
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/client-api";
 import { fetchFullCatalog } from "@/lib/data-fetcher";
 import { Download } from "lucide-react";
 
@@ -1101,75 +1101,7 @@ ${product?.desc}
                                     "No description available."}
                             </p>
 
-                            {/* SPECIFICATIONS */}
 
-                            <div className="mt-10 overflow-x-auto">
-
-                                <table className="w-full border border-[#E8D3BC]">
-
-                                    <tbody>
-
-                                        {[
-                                            [
-                                                "Brand",
-                                                product.brand,
-                                            ],
-                                            [
-                                                "Model",
-                                                product.model,
-                                            ],
-                                            [
-                                                "Usage",
-                                                product.usage,
-                                            ],
-                                            [
-                                                "Automation",
-                                                product.automation,
-                                            ],
-                                            [
-                                                "Capacity",
-                                                product.capacity,
-                                            ],
-                                            [
-                                                "Throughput",
-                                                product.throughput,
-                                            ],
-                                        ].map(
-                                            (
-                                                [
-                                                    label,
-                                                    value,
-                                                ],
-                                                index
-                                            ) => (
-                                                <tr
-                                                    key={
-                                                        index
-                                                    }
-                                                >
-
-                                                    <td className="border border-[#E8D3BC] bg-[#FDFBD4] p-3 font-semibold text-[#713600]">
-                                                        {
-                                                            label
-                                                        }
-                                                    </td>
-
-                                                    <td className="border border-[#E8D3BC] p-3 text-[#5B4634]">
-                                                        {
-                                                            value ||
-                                                            "N/A"
-                                                        }
-                                                    </td>
-
-                                                </tr>
-                                            )
-                                        )}
-
-                                    </tbody>
-
-                                </table>
-
-                            </div>
 
 
                             {/* SEO CONTENT */}

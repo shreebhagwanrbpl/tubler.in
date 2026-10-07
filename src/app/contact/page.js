@@ -7,8 +7,8 @@ import {
   getDoc,
   addDoc,
   collection,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase";
+} from "@/lib/client-api";
+import { db } from "@/lib/client-api";
 import toast from "react-hot-toast";
 import PageBanner from "@/components/PageBanner";
 import {

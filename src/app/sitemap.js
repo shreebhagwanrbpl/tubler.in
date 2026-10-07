@@ -1,140 +1,37 @@
-import { db } from "@/lib/firebase";
-import {
-    collection,
-    getDocs,
-    doc,
-    getDoc,
-} from "firebase/firestore";
+import { fetchActiveDistricts, fetchFullCatalog } from "@/lib/data-fetcher-server";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function sitemap() {
-    const baseUrl =
-        "https://tubler.in";
+  const now = new Date();
+  const urls = [
+    { url: "https://tubler.in", lastModified: now },
+    { url: "https://tubler.in/about", lastModified: now },
+    { url: "https://tubler.in/services", lastModified: now },
+    { url: "https://tubler.in/contact", lastModified: now },
+    { url: "https://tubler.in/items", lastModified: now },
+  ];
 
-    const urls = [];
-
-    // Static Pages
-    urls.push(
-        {
-            url: baseUrl,
-            lastModified: new Date(),
-        },
-        {
-            url: `${baseUrl}/about`,
-            lastModified: new Date(),
-        },
-        {
-            url: `${baseUrl}/services`,
-            lastModified: new Date(),
-        },
-        {
-            url: `${baseUrl}/contact`,
-            lastModified: new Date(),
-        },
-        {
-            url: `${baseUrl}/items`,
-            lastModified: new Date(),
-        }
-    );
-
-    try {
-        // DISTRICTS
-        const districtSnap =
-            await getDocs(
-                collection(
-                    db,
-                    "websites",
-                    "tublerin",
-                    "districts"
-                )
-            );
-
-        const districts =
-            districtSnap.docs.map(
-                (doc) => doc.data()
-            );
-
-        districts.forEach((district) => {
-            const slug =
-                district.slug;
-
-            if (!slug) return;
-
-            urls.push(
-                {
-                    url: `${baseUrl}/${slug}`,
-                    lastModified:
-                        new Date(),
-                },
-                {
-                    url: `${baseUrl}/${slug}/about`,
-                    lastModified:
-                        new Date(),
-                },
-                {
-                    url: `${baseUrl}/${slug}/services`,
-                    lastModified:
-                        new Date(),
-                },
-                {
-                    url: `${baseUrl}/${slug}/contact`,
-                    lastModified:
-                        new Date(),
-                },
-                {
-                    url: `${baseUrl}/${slug}/items`,
-                    lastModified:
-                        new Date(),
-                }
-            );
-        });
-
-        // PRODUCTS
-        const productDoc =
-            await getDoc(
-                doc(
-                    db,
-                    "websites",
-                    "tublerin",
-                    "pages",
-                    "products"
-                )
-            );
-
-        const products =
-            productDoc.data()
-                ?.products || [];
-
-        products.forEach(
-            (product) => {
-                if (!product.slug) return;
-
-                // Main Product URL
-                urls.push({
-                    url: `${baseUrl}/items/${product.slug}`,
-                    lastModified:
-                        new Date(),
-                });
-
-                // District Product URLs
-                districts.forEach(
-                    (district) => {
-                        if (!district.slug) return;
-
-                        urls.push({
-                            url: `${baseUrl}/${district.slug}/items/${product.slug}`,
-                            lastModified:
-                                new Date(),
-                        });
-                    }
-                );
-            }
-        );
-    } catch (error) {
-        console.error(
-            "Sitemap Error:",
-            error
-        );
+  try {
+    const districts = await fetchActiveDistricts();
+    for (const district of districts) {
+      const slug = district?.slug;
+      if (!slug) continue;
+      for (const path of ["", "/about", "/services", "/contact", "/items"]) {
+        urls.push({ url: `https://tubler.in/${slug}${path}`, lastModified: now });
+      }
     }
-
-    return urls;
+    const products = await fetchFullCatalog();
+    for (const product of products) {
+      if (!product?.slug) continue;
+      urls.push({ url: `https://tubler.in/items/${product.slug}`, lastModified: now });
+      for (const district of districts) {
+        if (district?.slug) urls.push({ url: `https://tubler.in/${district.slug}/items/${product.slug}`, lastModified: now });
+      }
+    }
+  } catch (error) {
+    console.error("Sitemap error:", error);
+  }
+  return urls;
 }
